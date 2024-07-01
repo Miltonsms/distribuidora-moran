@@ -120,5 +120,8 @@
       }
     }
   },
-  "defaultProject": "sistema-Distribuidora-Moran"
+  "defaultProject": "sistema-Distribuidora-Moran",
+  "cli": {
+    "analytics": false
+  }
 }
