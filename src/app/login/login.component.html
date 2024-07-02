@@ -1,12 +1,43 @@
-<div>
-    <h2>Login</h2>
-    <form (ngSubmit)="login()">
-      <label for="email">Email:</label>
-      <input type="email" id="email" [(ngModel)]="email" name="email" required>
-      <br>
-      <label for="password">Password:</label>
-      <input type="password" id="password" [(ngModel)]="password" name="password" required>
-      <br>
-      <button type="submit">Login</button>
-    </form>
+<div class="container-fluid">
+  <div class="page login-page">
+    <div class="container d-flex align-items-center">
+      <div class="form-holder has-shadow">
+        <div class="row">
+          <!-- Logo & Information Panel-->
+          <div class="col-lg-6">
+            <div class="info d-flex align-items-center">
+              <div class="content">
+                <div class="logo">
+                  <h1>Distribuidora Moarazán S.A.</h1>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Form Panel    -->
+          <div class="col-lg-6 bg-white">
+            <div class="form d-flex align-items-center">
+              <div class="content">
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <img src="../assets/imagenes/logo_alta_resolucion.png" style="width: 50%; margin-bottom: 45px;" alt="">
+                    </div>
+                  </div>
+                <form method="post" class="form-validate" novalidate="novalidate" (ngSubmit)="login()">
+                  <div class="form-group">
+                    <input type="email" id="inputEmail" class="form-control" placeholder="Nombre de Usuario" [(ngModel)]="email" name="first"> 
+                  </div>
+                  <div class="form-group">
+                    <input type="password" id="inputPassword" class="form-control" placeholder="Contraseña"  style="margin-top: 20px;" [(ngModel)]="password" name="password">
+                    <button class="btn btn-lg btn-primary btn-block"  style="margin-top: 20px;"  type="submit">Ingresar</button>
+                    <!-- <p style="color:red">{{mensaje}}</p> -->
+                  </div>
+                  <!-- This should be submit button but I replaced it with <a> for demo purposes-->
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
+</div>

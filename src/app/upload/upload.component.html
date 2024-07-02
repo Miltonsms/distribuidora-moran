@@ -1,5 +1,44 @@
 <div>
-    <h2>Upload Excel File</h2>
-    <input type="file" (change)="onFileSelected($event)">
-    <button (click)="uploadFile()">Upload</button>
+  <h2>Upload Excel File</h2>
+  <input type="file" (change)="onFileSelected($event)">
+  <button (click)="uploadFile()">Upload</button>
+  <button (click)="generatePDF('verde')">Generar PDF</button>
+
+
+
+
+<div class="row">
+  <div class="col-md-3"></div>
+  <div class="col-md-6">
+
+    <table class="table table-hover"  *ngIf="data.length > 0">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Salario</th>
+            <th>PDF</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let datos of data; index as i">
+            <th scope="row">{{i+1}}</th>
+            <td>{{datos.nombre}}</td>
+            <td>{{datos.correo}}</td>
+            <td>{{datos.salario}}</td>
+            <td><button (click)="generatePDF(datos)">Generar PDF</button></td>
+          </tr>
+        </tbody>
+    </table>
+    <!-- <table class="table table-hover" ngIf="data.length > 0">
+
+  
+    </table> -->
   </div>
+</div>
+
+
+
+
+</div>
