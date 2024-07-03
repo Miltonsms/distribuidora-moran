@@ -9,6 +9,7 @@ import { LoginComponent } from './login/login.component';
 import { environment } from 'src/environments/environment';
 import { UploadComponent } from './upload/upload.component';
 import { FormsModule } from '@angular/forms';
+import { AngularFireStorageModule } from '@angular/fire/storage';
 @NgModule({
   declarations: [
     AppComponent,
@@ -21,7 +22,8 @@ import { FormsModule } from '@angular/forms';
     AngularFireDatabaseModule,
     AngularFireAuthModule,
     AppRoutingModule,
-    FormsModule
+    FormsModule,
+    AngularFireStorageModule
   ],
   providers: [],
   bootstrap: [AppComponent]

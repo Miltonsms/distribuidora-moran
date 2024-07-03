@@ -3,6 +3,8 @@ import { FileUploadService } from '../file-upload.service';
 import * as pdfMake from 'pdfmake/build/pdfmake';
 import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 import {CreatePdfBoletaService} from '../services/create-pdf-boleta.service'
+import { finalize } from 'rxjs/operators';
+import { AngularFireStorage } from '@angular/fire/storage';
 import * as XLSX from 'xlsx';
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 @Component({
@@ -13,37 +15,42 @@ pdfMake.vfs = pdfFonts.pdfMake.vfs;
 export class UploadComponent implements OnInit {
   selectedFile: File | null = null;
   data: any[][] = [];
-  constructor(private fileUploadService: FileUploadService,private CreatePdfBoletaService: CreatePdfBoletaService) {}
+  constructor(private fileUploadService: FileUploadService,private CreatePdfBoletaService: CreatePdfBoletaService,private storage: AngularFireStorage) {}
 
   ngOnInit(): void {
   }
   onFileSelected(event: any) {
     this.selectedFile = event.target.files[0];
-    if (this.selectedFile) {
-      const reader: FileReader = new FileReader();
-      reader.onload = (e: any) => {
-        const bstr: string = e.target.result;
-        const wb: XLSX.WorkBook = XLSX.read(bstr, { type: 'binary' });
-        const wsname: string = wb.SheetNames[0];
-        const ws: XLSX.WorkSheet = wb.Sheets[wsname];
-        this.data = XLSX.utils.sheet_to_json(ws);
-        console.log(this.data)
-      };
-      reader.readAsBinaryString(this.selectedFile);
-    }
   }
+
   uploadFile() {
     if (this.selectedFile) {
-      this.fileUploadService.uploadFile(this.selectedFile).then(() => {
-        alert('File uploaded and processed successfully');
-      }).catch(error => {
-        console.error(error);
-        alert('Error uploading file');
-      });
+      const filePath = `uploads/${this.selectedFile.name}`;
+      const fileRef = this.storage.ref(filePath);
+      const task = this.storage.upload(filePath, this.selectedFile);
+
+      task.snapshotChanges().pipe(
+        finalize(() => {
+          fileRef.getDownloadURL().subscribe(url => {
+            this.processFile(url);
+          });
+        })
+      ).subscribe();
     } else {
       alert('Please select a file first');
     }
   }
+
+  processFile(url: string) {
+    // Aquí puedes descargar y procesar el archivo desde la URL
+    fetch(url).then(res => res.arrayBuffer()).then(buffer => {
+      const workbook = XLSX.read(buffer, { type: 'array' });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      this.data = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+    });
+  }
+
   generatePDF(datos:any){
     console.log(datos)
     this.CreatePdfBoletaService.generatePDF(datos)
