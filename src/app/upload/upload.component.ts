@@ -21,36 +21,22 @@ export class UploadComponent implements OnInit {
   }
   onFileSelected(event: any) {
     this.selectedFile = event.target.files[0];
-  }
-
-  uploadFile() {
     if (this.selectedFile) {
-      const filePath = `uploads/${this.selectedFile.name}`;
-      const fileRef = this.storage.ref(filePath);
-      const task = this.storage.upload(filePath, this.selectedFile);
-
-      task.snapshotChanges().pipe(
-        finalize(() => {
-          fileRef.getDownloadURL().subscribe(url => {
-            this.processFile(url);
-          });
-        })
-      ).subscribe();
-    } else {
-      alert('Please select a file first');
+      const reader: FileReader = new FileReader();
+      reader.onload = (e: any) => {
+        const bstr: string = e.target.result;
+        const wb: XLSX.WorkBook = XLSX.read(bstr, { type: 'binary' });
+        const wsname: string = wb.SheetNames[0];
+        const ws: XLSX.WorkSheet = wb.Sheets[wsname];
+        this.data = XLSX.utils.sheet_to_json(ws);
+        console.log(this.data)
+      };
+      reader.readAsBinaryString(this.selectedFile);
     }
   }
+  uploadFile() {
 
-  processFile(url: string) {
-    // Aquí puedes descargar y procesar el archivo desde la URL
-    fetch(url).then(res => res.arrayBuffer()).then(buffer => {
-      const workbook = XLSX.read(buffer, { type: 'array' });
-      const sheetName = workbook.SheetNames[0];
-      const sheet = workbook.Sheets[sheetName];
-      this.data = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-    });
   }
-
   generatePDF(datos:any){
     console.log(datos)
     this.CreatePdfBoletaService.generatePDF(datos)
