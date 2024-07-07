@@ -5,6 +5,7 @@ import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 import {CreatePdfBoletaService} from '../services/create-pdf-boleta.service'
 import { finalize } from 'rxjs/operators';
 import { AngularFireStorage } from '@angular/fire/storage';
+import { AngularFireFunctions } from '@angular/fire/functions';
 import * as XLSX from 'xlsx';
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 @Component({
@@ -15,7 +16,7 @@ pdfMake.vfs = pdfFonts.pdfMake.vfs;
 export class UploadComponent implements OnInit {
   selectedFile: File | null = null;
   data: any[][] = [];
-  constructor(private fileUploadService: FileUploadService,private CreatePdfBoletaService: CreatePdfBoletaService,private storage: AngularFireStorage) {}
+  constructor(private fileUploadService: FileUploadService,private CreatePdfBoletaService: CreatePdfBoletaService,private storage: AngularFireStorage, private functions: AngularFireFunctions) {}
 
   ngOnInit(): void {
   }
@@ -35,8 +36,17 @@ export class UploadComponent implements OnInit {
     }
   }
   uploadFile() {
-
+this.sendEmail('milsmsramirez@gmail.com', 'Subject', 'Here is your file: ');
   }
+
+  sendEmail(to: string, subject: string, text: string) {
+    const callable = this.functions.httpsCallable('sendEmail');
+    callable({ to, subject, text }).subscribe(
+      response => console.log('Email sent successfully!', response),
+      error => console.error('Error sending email', error)
+    );
+  }
+
   generatePDF(datos:any){
     console.log(datos)
     this.CreatePdfBoletaService.generatePDF(datos)
