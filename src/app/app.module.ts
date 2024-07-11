@@ -10,11 +10,17 @@ import { environment } from 'src/environments/environment';
 import { UploadComponent } from './upload/upload.component';
 import { FormsModule } from '@angular/forms';
 import { AngularFireStorageModule } from '@angular/fire/storage';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { SidebarComponent } from './sidebar/sidebar.component';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
-    UploadComponent
+    UploadComponent,
+    SidebarComponent
   ],
   imports: [
     BrowserModule,
@@ -23,7 +29,11 @@ import { AngularFireStorageModule } from '@angular/fire/storage';
     AngularFireAuthModule,
     AppRoutingModule,
     FormsModule,
-    AngularFireStorageModule
+    AngularFireStorageModule,
+    NoopAnimationsModule,
+    MatSidenavModule,
+    MatListModule,
+    MatIconModule
   ],
   providers: [],
   bootstrap: [AppComponent]

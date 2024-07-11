@@ -1,16 +1,40 @@
-<div>
+<!-- <div>
   <h2>Upload Excel File</h2>
   <input type="file" (change)="onFileSelected($event)">
   <button (click)="uploadFile()">Upload</button>
-
-
-
-
 <div class="row">
   <div class="col-md-3"></div>
   <div class="col-md-6">
+  </div>
+</div>
+</div> -->
+<br>
+<br>
+<div class="row">
+  <div class="col-md-2"></div>
+  <div class="col-md-8">
+    <div class="card">
+      <h1 class="card-header">Carga de Documento.</h1>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-8">
+            <h2 class="card-title">Planilla de Pago</h2>
+            <p class="card-text">Debe de llenar la planilla con los campos que se requieren.</p>
+            <input type="file" (change)="onFileSelected($event)">
+            <!-- <a href="#" class="btn btn-primary">Elegir archivo</a> -->
+          </div>
+          <div class="col-md-4">
+            <button type="button" class="btn btn-secondary" (click)="downloadTemplate()">Descargar Plantilla <img
+              height="30" style="margin-left: 5px;    margin-top: 10px;"><mat-icon>save_alt</mat-icon></button>
+          </div>
+        </div>
 
-    <table class="table table-hover"  *ngIf="data.length > 0">
+      </div>
+    </div>
+    <br>
+    <br>
+    <div class="row">
+      <table class="table table-hover"  *ngIf="data.length > 0">
         <thead>
           <tr>
             <th>#</th>
@@ -30,14 +54,6 @@
           </tr>
         </tbody>
     </table>
-    <!-- <table class="table table-hover" ngIf="data.length > 0">
-
-  
-    </table> -->
+    </div>
   </div>
-</div>
-
-
-
-
 </div>

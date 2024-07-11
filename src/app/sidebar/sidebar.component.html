@@ -1,0 +1,21 @@
+<mat-sidenav-container class="example-container" autosize>
+  <mat-sidenav mode="side" opened>
+    <mat-nav-list>
+      <a mat-list-item routerLink="/upload" routerLinkActive="active-link"><mat-icon>dashboard</mat-icon> Menú</a>
+      <a mat-list-item routerLink="/historial" routerLinkActive="active-link"><mat-icon>analytics</mat-icon> Historial</a>
+      <!-- <a mat-list-item href="#"><mat-icon>shopping_cart</mat-icon> Ecommerce</a>
+      <a mat-list-item href="#"><mat-icon>work</mat-icon> Projects</a>
+      <a mat-list-item href="#"><mat-icon>contacts</mat-icon> CRM</a>
+      <a mat-list-item href="#"><mat-icon>account_balance_wallet</mat-icon> E-Wallet</a>
+      <a mat-list-item href="#"><mat-icon>calendar_today</mat-icon> Calendar</a>
+      <a mat-list-item href="#"><mat-icon>chat</mat-icon> Chat</a> -->
+      <a mat-list-item href="#"><mat-icon>email</mat-icon> Email</a>
+      <!-- <a mat-list-item href="#"><mat-icon>rss_feed</mat-icon> Social Feed</a>
+      <a mat-list-item href="#"><mat-icon>check_circle</mat-icon> Tasks</a>
+      <a mat-list-item href="#"><mat-icon>folder</mat-icon> File Manager</a> -->
+    </mat-nav-list>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <router-outlet></router-outlet>
+  </mat-sidenav-content>
+</mat-sidenav-container>

@@ -1,0 +1,26 @@
+.example-container {
+    height: 100vh;
+  }
+  
+  mat-sidenav {
+    width: 250px;
+    background: #1f2937;
+    color: #fff;
+  }
+  
+  mat-nav-list a {
+    color: #fff;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    text-decoration: none;
+  }
+  
+  mat-nav-list a.active-link {
+    background-color: #374151; /* Color de fondo cuando está activo */
+    border-left: 4px solid #4caf50; /* Indicador de selección */
+  }
+  
+  mat-icon {
+    margin-right: 10px;
+  }
