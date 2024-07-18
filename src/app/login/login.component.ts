@@ -12,10 +12,13 @@ export class LoginComponent implements OnInit {
   constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {
+    localStorage.setItem('currentUser', "0");
   }
   login() {
     this.authService.login(this.email, this.password).then(() => {
+      localStorage.setItem('currentUser', "1");
       this.router.navigate(['/upload']);
+      location.reload();
     }).catch(error => {
       console.error(error);
       alert('Invalid credentials');

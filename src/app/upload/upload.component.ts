@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { FileUploadService } from '../file-upload.service';
 import * as pdfMake from 'pdfmake/build/pdfmake';
 import * as pdfFonts from 'pdfmake/build/vfs_fonts';
-import {CreatePdfBoletaService} from '../services/create-pdf-boleta.service'
+import { CreatePdfBoletaService } from '../services/create-pdf-boleta.service'
 import { finalize } from 'rxjs/operators';
 import { AngularFireStorage } from '@angular/fire/storage';
 import { AngularFireFunctions } from '@angular/fire/functions';
 import * as XLSX from 'xlsx';
+import * as xlsx from 'xlsx';
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 @Component({
@@ -16,10 +17,10 @@ pdfMake.vfs = pdfFonts.pdfMake.vfs;
 })
 export class UploadComponent implements OnInit {
   selectedFile: File | null = null;
-  data: any[][] = [];
+  data = [];
   iniciativaForm: FormGroup;
-  
-  constructor(private fileUploadService: FileUploadService,private CreatePdfBoletaService: CreatePdfBoletaService,private storage: AngularFireStorage, private functions: AngularFireFunctions) {}
+  envioGrupal=false
+  constructor(private fileUploadService: FileUploadService, private CreatePdfBoletaService: CreatePdfBoletaService, private storage: AngularFireStorage, private functions: AngularFireFunctions) { }
 
   ngOnInit(): void {
   }
@@ -33,25 +34,44 @@ export class UploadComponent implements OnInit {
         const wsname: string = wb.SheetNames[0];
         const ws: XLSX.WorkSheet = wb.Sheets[wsname];
         this.data = XLSX.utils.sheet_to_json(ws);
+        this.envioGrupal=true
         console.log(this.data)
+        let i: number;
+        for (i = 0; i < this.data.length; i++) {
+          this.data[i].alerta = false
+        }
       };
       reader.readAsBinaryString(this.selectedFile);
     }
   }
   uploadFile() {
-this.sendEmail('milsmsramirez@gmail.com', 'Subject', 'Here is your file: ');
+    let i: number;
+    for (i = 0; i < this.data.length; i++) {
+      this.sendEmail(this.data[i].correo, 'Comprobante de pago', 'Envio de comprobante prueba ',i);
+      
+    }
   }
-
-  sendEmail(to: string, subject: string, text: string) {
+  generatePDF(datos: any) {
+    console.log(datos)
+    this.CreatePdfBoletaService.generatePDF(datos)
+  }
+  EnviarDenuevo(datos: any, index:number){
+    this.sendEmail(datos.correo, 'Comprobante de pago', 'Envio de comprobante prueba ',index);
+  }
+  sendEmail(to: string, subject: string, text: string,indix:number) {
     const callable = this.functions.httpsCallable('sendEmail');
     callable({ to, subject, text }).subscribe(
-      response => console.log('Email sent successfully!', response),
-      error => console.error('Error sending email', error)
+      response => {
+        this.data[indix].alerta = true
+      },
+      error => {
+        console.error('Error sending email', error);
+      }
     );
   }
 
   downloadTemplate() {
-    const reader = require("xlsx");
+
 
     const json = [
       {
@@ -66,10 +86,11 @@ this.sendEmail('milsmsramirez@gmail.com', 'Subject', 'Here is your file: ');
         fecha_de_baja: "valor",
         salario_devengado: "valor",
         bonificacion_decreto_37_2001: "valor",
-        pagopago_asueto: "valor",
+        pago_asueto: "valor",
         otras_bonificaciones: "valor",
         pago_variable: "valor",
         pago_pendiente: "valor",
+        total_ingreso: "valor",
         descuento_igss: "valor",
         impuesto_sobre_renta: "valor",
         pago_variable_80_aplica: "valor",
@@ -88,10 +109,10 @@ this.sendEmail('milsmsramirez@gmail.com', 'Subject', 'Here is your file: ');
       },
     ];
 
-    let workBook = reader.utils.book_new();
-    const workSheet = reader.utils.json_to_sheet(json);
-    reader.utils.book_append_sheet(workBook, workSheet, `hoja1`);
+    let workBook = xlsx.utils.book_new();
+    const workSheet = xlsx.utils.json_to_sheet(json);
+    xlsx.utils.book_append_sheet(workBook, workSheet, `hoja1`);
     let exportFileName = `plantillaretencion.xlsx`;
-    reader.writeFile(workBook, exportFileName);
+    xlsx.writeFile(workBook, exportFileName);
   }
 }

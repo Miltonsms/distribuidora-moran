@@ -34,14 +34,23 @@
     <br>
     <br>
     <div class="row">
+      <div class="col-md-8"></div>
+      <div class="col-md-4">
+        <button type="button" class="btn btn-success" (click)="uploadFile()" [disabled]="!envioGrupal">  <p>Enviar Comprobante <mat-icon class="mat-icon-rtl-mirror">mail</mat-icon></p></button>
+      </div>
+    </div>
+    <br>
+    <div class="row">
       <table class="table table-hover"  *ngIf="data.length > 0">
         <thead>
           <tr>
             <th>#</th>
             <th>Nombre</th>
             <th>Correo</th>
-            <th>Salario</th>
+            <th>Neto Recibido</th>
             <th>PDF</th>
+            <th>Enviar de Nuevo</th>
+            <th>Enviado</th>
           </tr>
         </thead>
         <tbody>
@@ -49,8 +58,11 @@
             <th scope="row">{{i+1}}</th>
             <td>{{datos.nombre}}</td>
             <td>{{datos.correo}}</td>
-            <td>{{datos.salario}}</td>
-            <td><button (click)="generatePDF(datos)">Generar PDF</button></td>
+            <td>{{datos.neto_recibido}}</td>
+            <td><button type="button" class="btn btn-primary" (click)="generatePDF(datos)">Generar PDF</button></td>
+            <td><button type="button" class="btn btn-primary" (click)="EnviarDenuevo(datos,i)">Enviar</button></td>
+            <td  *ngIf="datos.alerta==false"> <p style="color: rgb(197, 0, 0);"><mat-icon class="mat-icon-rtl-mirror">cancel</mat-icon></p></td>
+            <td  *ngIf="datos.alerta==true"> <p style="color: rgb(4, 191, 54);"><mat-icon class="mat-icon-rtl-mirror">check_circle</mat-icon></p></td>
           </tr>
         </tbody>
     </table>

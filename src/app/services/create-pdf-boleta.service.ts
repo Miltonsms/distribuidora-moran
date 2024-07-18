@@ -37,17 +37,17 @@ export class CreatePdfBoletaService {
             widths: [110, 180, 110, 110],
             body: [
               [
-                { text: 'CÓDIGO:', style: 'headertext' }, { text: '56230:', style: 'headertext2' },
-                { text: 'No. DE NIT:', style: 'headertext' }, { text: '55371906:', style: 'headertext2' }],
+                { text: 'CÓDIGO:', style: 'headertext' }, { text: datos.codigo, style: 'headertext2' },
+                { text: 'No. DE NIT:', style: 'headertext' }, { text: datos.nit, style: 'headertext2' }],
               [
                 { text: 'NOMBRE:', style: 'headertext' }, { text: datos.nombre, style: 'headertext2' },
-                { text: 'No. DPI:', style: 'headertext' }, { text: '1942099621612:', style: 'headertext2' }],
+                { text: 'No. DPI:', style: 'headertext' }, { text: datos.dpi, style: 'headertext2' }],
               [
-                { text: 'CARGO:', style: 'headertext' }, { text: 'Auxiliar de Entrega:', style: 'headertext2' },
-                { text: 'SUCURSAL:', style: 'headertext' }, { text: 'Chimaltenango:', style: 'headertext2' }],
+                { text: 'CARGO:', style: 'headertext' }, { text: datos.cargo, style: 'headertext2' },
+                { text: 'SUCURSAL:', style: 'headertext' }, { text: datos.sucursal, style: 'headertext2' }],
               [
-                { text: 'DÍAS DEVENGADOS:', style: 'headertext' }, { text: '30', style: 'headertext2' },
-                { text: 'FECHA DE BAJA:', style: 'headertext' }, { text: ' :', style: 'headertext2' }]
+                { text: 'DÍAS DEVENGADOS:', style: 'headertext' }, { text: datos.dias_devengados, style: 'headertext2' },
+                { text: 'FECHA DE BAJA:', style: 'headertext' }, { text: datos.fecha_de_baja, style: 'headertext2' }]
             ]
           },
           layout: 'noBorders'
@@ -62,28 +62,28 @@ export class CreatePdfBoletaService {
                 { text: 'DESCRIPCIÓN', style: 'tableHeader' },
                 { text: 'QUETZALES', style: 'tableHeader' }
               ],
-              ['Salario Devengado', 'Q3,227.82'],
-              ['Bonificación Dcto 37-2001', 'Q1,531.68'],
-              ['Pago Asueto', 'Q0.00'],
-              ['Otras Bonificaciones', 'Q0.00'],
-              ['Pago Variable', 'Q0.00'],
-              ['Pagos Pendientes', 'Q0.00'],
-              [{ text: 'TOTAL INGRESOS', style: 'totalHeader' }, 'Q4,759.50'],
-              ['Descuento IGSS', 'Q155.90'],
-              ['Impuesto Sobre la Renta', 'Q13.28'],
-              ['Pago Variable 80% aplica', 'Q0.00'],
-              ['Descuento Préstamo Salarial', 'Q0.00'],
-              ['Descuento de Faltantes en Liquidaciones y Bodegas', 'Q0.00'],
-              ['Descuento por Equipo y Flota', 'Q0.00'],
-              ['Descuento Autoconsumo', 'Q0.00'],
-              ['Anticipo Quincenal', 'Q0.00'],
-              ['Otros Descuentos', 'Q0.00'],
-              ['Descuento de Ausencias Injustificadas', 'Q0.00'],
-              ['Descuento Anticipo Bonificación', 'Q0.00'],
-              ['Embargos Salariales', 'Q0.00'],
-              ['Boleta de Control', 'Q0.00'],
-              [{ text: 'TOTAL DESCUENTOS', style: 'totalHeader' }, 'Q169.19'],
-              [{ text: 'NETO RECIBIDO', style: 'totalHeader' }, 'Q4,590.31']
+              ['Salario Devengado', datos.salario_devengado],
+              ['Bonificación Dcto 37-2001', datos.bonificacion_decreto_37_2001],
+              ['Pago Asueto', datos.pago_asueto],
+              ['Otras Bonificaciones', datos.otras_bonificaciones],
+              ['Pago Variable', datos.pago_variable],
+              ['Pagos Pendientes', datos.pago_pendiente],
+              [{ text: 'TOTAL INGRESOS', style: 'totalHeader' }, datos.total_ingreso],
+              ['Descuento IGSS', datos.descuento_igss],
+              ['Impuesto Sobre la Renta', datos.impuesto_sobre_renta],
+              ['Pago Variable 80% aplica', datos.pago_variable_80_aplica],
+              ['Descuento Préstamo Salarial', datos.descuento_prestamo_salarial],
+              ['Descuento de Faltantes en Liquidaciones y Bodegas', datos.descuento_faltantes_liquidaciones_bodega],
+              ['Descuento por Equipo y Flota', datos.descuento_equipo_flota],
+              ['Descuento Autoconsumo', datos.descuento_autoconsumo],
+              ['Anticipo Quincenal', datos.anticipo_quincenal],
+              ['Otros Descuentos', datos.otros_descuentos],
+              ['Descuento de Ausencias Injustificadas', datos.descuento_ausencias_injustificadas],
+              ['Descuento Anticipo Bonificación', datos.descuento_anticipo_bonificacion],
+              ['Embargos Salariales', datos.embargos_salariales],
+              ['Boleto de Ornado', datos.boleto_ornato],
+              [{ text: 'TOTAL DESCUENTOS', style: 'totalHeader' }, datos.total_Descuento],
+              [{ text: 'NETO RECIBIDO', style: 'totalHeader' }, datos.neto_recibido]
             ]
           }
         },

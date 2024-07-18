@@ -11,5 +11,8 @@ export class SidebarComponent implements OnInit {
 
   ngOnInit(): void {
   }
-
+  logout(){
+    localStorage.setItem('currentUser', "0");
+    location.reload();
+  }
 }
