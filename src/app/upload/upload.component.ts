@@ -19,15 +19,17 @@ export class UploadComponent implements OnInit {
   selectedFile: File | null = null;
   data = [];
   iniciativaForm: FormGroup;
-  envioGrupal=false
-  emailCopiaEnvio:string=''
+  envioGrupal = false
+  emailCopiaEnvio: string = ''
   constructor(private fileUploadService: FileUploadService, private CreatePdfBoletaService: CreatePdfBoletaService, private storage: AngularFireStorage, private functions: AngularFireFunctions) { }
 
   ngOnInit(): void {
   }
   onFileSelected(event: any) {
+    this.data = []
     this.selectedFile = event.target.files[0];
     if (this.selectedFile) {
+      this.data = []
       const reader: FileReader = new FileReader();
       reader.onload = (e: any) => {
         const bstr: string = e.target.result;
@@ -35,93 +37,131 @@ export class UploadComponent implements OnInit {
         const wsname: string = wb.SheetNames[0];
         const ws: XLSX.WorkSheet = wb.Sheets[wsname];
         this.data = XLSX.utils.sheet_to_json(ws);
-        this.envioGrupal=true
+        this.envioGrupal = true
         console.log(this.data)
         let i: number;
         for (i = 0; i < this.data.length; i++) {
           this.data[i].alerta = false
+          this.data[i].mensaje = 'Alerta:'
+          this.data[i].mensajeActivo = false
         }
       };
       reader.readAsBinaryString(this.selectedFile);
     }
   }
-  async uploadFile() {
-    let i: number;
-    for (i = 0; i < this.data.length; i++) {
-      try {
-        const buffer = await this.CreatePdfBoletaService.envioCorreos64(this.data[i]);
-        await this.sendEmail(this.data[i].correo+","+this.emailCopiaEnvio, 'Comprobante de pago', 'Envio de comprobante prueba', i, buffer);
-      } catch (error) {
-        console.error('Error creating PDF buffer:', error);
+
+async uploadFile() {
+  let i: number;
+  for (i = 0; i < this.data.length; i++) {
+    try {
+      let camposVacios = false;
+      let emailInvalido = false;
+      let contador = 0
+      for (const [campo, valor] of Object.entries(this.data[i])) {
+        if (valor === "" || valor === null || valor === undefined) {
+          contador =+1
+          var mensajeUno =` El campo ${campo} está vacío.`
+          var mensajeDos =`, El campo ${campo} está vacío.`
+          if(contador==0){
+            this.data[i].mensaje + mensajeUno
+          }else{
+            this.data[i].mensaje + mensajeDos
+          }
+          camposVacios = true;
+          this.data[i].mensajeActivo =true
+        }
+        if (campo === "correo" && !this.esCorreoValido(valor as string)) {
+          contador =+1
+          var mensajeUno =` El campo ${campo} tiene un correo electrónico inválido: ${valor}`
+          var mensajeDos =`, El campo ${campo} tiene un correo electrónico inválido: ${valor}`
+          if(contador==0){
+            this.data[i].mensaje + mensajeUno
+          }else{
+            this.data[i].mensaje + mensajeDos
+          }
+          emailInvalido = true;
+          this.data[i].mensajeActivo =true
+        }
       }
+      if (!camposVacios && !emailInvalido) {
+        const buffer = await this.CreatePdfBoletaService.envioCorreos64(this.data[i]);
+        await this.sendEmail(this.data[i].correo + "," + this.emailCopiaEnvio, 'Comprobante de pago', 'Envio de comprobante prueba', i, buffer);
+      }
+    } catch (error) {
+      console.error('Error creating PDF buffer:', error);
     }
   }
-  generatePDF(datos: any) {
-    console.log(datos)
-    this.CreatePdfBoletaService.generatePDF(datos)
-  }
-  EnviarDenuevo(datos: any, index:number){
-    this.CreatePdfBoletaService.envioCorreos64(datos).then((buffer) => {
-      this.sendEmail(datos.correo, 'Comprobante de pago', 'Envio de comprobante prueba ',index,buffer);
-    }).catch((error) => {
-      console.error('Error creating PDF buffer:', error);
-    }); 
-  }
-  sendEmail(to: string, subject: string, text: string,indix:number, buffer:any) {
-    const callable = this.functions.httpsCallable('sendEmail');
-    callable({ to, subject,text, buffer  }).subscribe(
-      response => {
-        this.data[indix].alerta = true
-      },
-      error => {
-        console.error('Error sending email', error);
-      }
-    );
-  }
+}
+esCorreoValido(correo: string): boolean {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return regex.test(correo);
+}
+generatePDF(datos: any) {
+  console.log(datos)
+  this.CreatePdfBoletaService.generatePDF(datos)
+}
+EnviarDenuevo(datos: any, index: number){
+  this.CreatePdfBoletaService.envioCorreos64(datos).then((buffer) => {
+    this.sendEmail(datos.correo, 'Comprobante de pago', 'Envio de comprobante prueba ', index, buffer);
+  }).catch((error) => {
+    console.error('Error creating PDF buffer:', error);
+  });
+}
+sendEmail(to: string, subject: string, text: string, indix: number, buffer: any) {
+  const callable = this.functions.httpsCallable('sendEmail');
+  callable({ to, subject, text, buffer }).subscribe(
+    response => {
+      this.data[indix].alerta = true
+    },
+    error => {
+      console.error('Error sending email', error);
+    }
+  );
+}
 
-  downloadTemplate() {
+downloadTemplate() {
 
 
-    const json = [
-      {
-        codigo: "valor",
-        nombre: "valor",
-        correo: "valor",
-        cargo: "valor",
-        dias_devengados: "valor",
-        nit: "valor",
-        dpi: "valor",
-        sucursal: "valor",
-        fecha_de_baja: "valor",
-        salario_devengado: "valor",
-        bonificacion_decreto_37_2001: "valor",
-        pago_asueto: "valor",
-        otras_bonificaciones: "valor",
-        pago_variable: "valor",
-        pago_pendiente: "valor",
-        total_ingreso: "valor",
-        descuento_igss: "valor",
-        impuesto_sobre_renta: "valor",
-        pago_variable_80_aplica: "valor",
-        descuento_prestamo_salarial: "valor",
-        descuento_faltantes_liquidaciones_bodega: "valor",
-        descuento_equipo_flota: "valor",
-        descuento_autoconsumo: "valor",
-        anticipo_quincenal: "valor",
-        otros_descuentos: "valor",
-        descuento_ausencias_injustificadas: "valor",
-        descuento_anticipo_bonificacion: "valor",
-        embargos_salariales: "valor",
-        boleto_ornato: "valor",
-        total_Descuento: "valor",
-        neto_recibido: "valor",
-      },
-    ];
+  const json = [
+    {
+      codigo: "valor",
+      nombre: "valor",
+      correo: "valor",
+      cargo: "valor",
+      dias_devengados: "valor",
+      nit: "valor",
+      dpi: "valor",
+      sucursal: "valor",
+      fecha_de_baja: "valor",
+      salario_devengado: "valor",
+      bonificacion_decreto_37_2001: "valor",
+      pago_asueto: "valor",
+      otras_bonificaciones: "valor",
+      pago_variable: "valor",
+      pago_pendiente: "valor",
+      total_ingreso: "valor",
+      descuento_igss: "valor",
+      impuesto_sobre_renta: "valor",
+      pago_variable_80_aplica: "valor",
+      descuento_prestamo_salarial: "valor",
+      descuento_faltantes_liquidaciones_bodega: "valor",
+      descuento_equipo_flota: "valor",
+      descuento_autoconsumo: "valor",
+      anticipo_quincenal: "valor",
+      otros_descuentos: "valor",
+      descuento_ausencias_injustificadas: "valor",
+      descuento_anticipo_bonificacion: "valor",
+      embargos_salariales: "valor",
+      boleto_ornato: "valor",
+      total_Descuento: "valor",
+      neto_recibido: "valor",
+    },
+  ];
 
-    let workBook = xlsx.utils.book_new();
-    const workSheet = xlsx.utils.json_to_sheet(json);
-    xlsx.utils.book_append_sheet(workBook, workSheet, `hoja1`);
-    let exportFileName = `plantillaretencion.xlsx`;
-    xlsx.writeFile(workBook, exportFileName);
-  }
+  let workBook = xlsx.utils.book_new();
+  const workSheet = xlsx.utils.json_to_sheet(json);
+  xlsx.utils.book_append_sheet(workBook, workSheet, `hoja1`);
+  let exportFileName = `plantillaretencion.xlsx`;
+  xlsx.writeFile(workBook, exportFileName);
+}
 }

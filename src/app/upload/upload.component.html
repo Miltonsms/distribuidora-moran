@@ -25,7 +25,7 @@
           </div>
           <div class="col-md-4">
             <button type="button" class="btn btn-secondary" (click)="downloadTemplate()">Descargar Plantilla <img
-              height="30" style="margin-left: 5px;    margin-top: 10px;"><mat-icon>save_alt</mat-icon></button>
+                height="30" style="margin-left: 5px;    margin-top: 10px;"><mat-icon>save_alt</mat-icon></button>
           </div>
         </div>
 
@@ -38,17 +38,43 @@
         <form>
           <div class="mb-12">
             <label for="exampleInputEmail1" class="form-label">Email para copia de correo:</label>
-            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" [(ngModel)]="emailCopiaEnvio"  name="emailCopiaEnvio">
+            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"
+              [(ngModel)]="emailCopiaEnvio" name="emailCopiaEnvio">
           </div>
         </form>
       </div>
       <div class="col-md-4">
-        <button type="button" class="btn btn-success" (click)="uploadFile()" [disabled]="!envioGrupal">  <p>Enviar Comprobante <mat-icon class="mat-icon-rtl-mirror">mail</mat-icon></p></button>
+        <button type="button" class="btn btn-success" (click)="uploadFile()" [disabled]="!envioGrupal">
+          <p>Enviar Comprobante <mat-icon class="mat-icon-rtl-mirror">mail</mat-icon></p>
+        </button>
       </div>
     </div>
     <br>
     <div class="row">
-      <table class="table table-hover"  *ngIf="data.length > 0">
+      <!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+  Launch demo modal
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+      <table class="table table-hover" *ngIf="data.length > 0">
         <thead>
           <tr>
             <th>#</th>
@@ -68,11 +94,42 @@
             <td>{{datos.neto_recibido}}</td>
             <td><button type="button" class="btn btn-primary" (click)="generatePDF(datos)">Generar PDF</button></td>
             <td><button type="button" class="btn btn-primary" (click)="EnviarDenuevo(datos,i)">Enviar</button></td>
-            <td  *ngIf="datos.alerta==false"> <p style="color: rgb(197, 0, 0);"><mat-icon class="mat-icon-rtl-mirror">cancel</mat-icon></p></td>
-            <td  *ngIf="datos.alerta==true"> <p style="color: rgb(4, 191, 54);"><mat-icon class="mat-icon-rtl-mirror">check_circle</mat-icon></p></td>
+            <td *ngIf="datos.alerta==false && datos.mensajeActivo==false">
+                <p style="color: rgb(197, 0, 0);">
+                  <mat-icon class="mat-icon-rtl-mirror">cancel</mat-icon>
+                </p>
+            </td>
+            <td *ngIf="datos.alerta==false && datos.mensajeActivo==false">
+              <button type="button" class="btn  btn-outline-warning" data-bs-toggle="modal"
+                data-bs-target="#exampleModal"
+                style="width: 30px; height: 30px; padding: 0px; border-radius: 100px;">
+                <mat-icon>warning</mat-icon>
+              </button>
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+              aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    ...
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </td>
+            <td *ngIf="datos.alerta==true">
+              <p style="color: rgb(4, 191, 54);"><mat-icon class="mat-icon-rtl-mirror">check_circle</mat-icon></p>
+            </td>
           </tr>
         </tbody>
-    </table>
+      </table>
     </div>
   </div>
 </div>
