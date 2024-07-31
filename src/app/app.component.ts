@@ -11,6 +11,7 @@ export class AppComponent {
 
   constructor(private router: Router) {}
   ngOnInit(): void {
+    console.log("pruebas")
     this.login = parseInt(localStorage.getItem('currentUser'))
     console.log(this.login)
     if(this.login !=1){

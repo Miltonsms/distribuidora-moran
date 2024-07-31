@@ -16,15 +16,20 @@ const transporter = nodemailer.createTransport({
   }
 });
 export const sendEmail = functions.https.onCall(async (data, context) => {
-  const { to, subject, text } = data;
-
+  const { to, subject,text,buffer } = data;
   const mailOptions = {
     from: 'notificacion@dismogt.com',
     to: to,
     subject: subject,
-    text: text
+    text:text,
+    attachments: [
+      {
+        filename: 'document.pdf',
+        content: Buffer.from(buffer, 'base64'),
+        contentType: 'application/pdf'
+      }
+    ]
   };
-
   try {
     await transporter.sendMail(mailOptions);
     return { success: true };

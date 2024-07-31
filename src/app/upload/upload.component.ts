@@ -20,6 +20,7 @@ export class UploadComponent implements OnInit {
   data = [];
   iniciativaForm: FormGroup;
   envioGrupal=false
+  emailCopiaEnvio:string=''
   constructor(private fileUploadService: FileUploadService, private CreatePdfBoletaService: CreatePdfBoletaService, private storage: AngularFireStorage, private functions: AngularFireFunctions) { }
 
   ngOnInit(): void {
@@ -44,11 +45,15 @@ export class UploadComponent implements OnInit {
       reader.readAsBinaryString(this.selectedFile);
     }
   }
-  uploadFile() {
+  async uploadFile() {
     let i: number;
     for (i = 0; i < this.data.length; i++) {
-      this.sendEmail(this.data[i].correo, 'Comprobante de pago', 'Envio de comprobante prueba ',i);
-      
+      try {
+        const buffer = await this.CreatePdfBoletaService.envioCorreos64(this.data[i]);
+        await this.sendEmail(this.data[i].correo+","+this.emailCopiaEnvio, 'Comprobante de pago', 'Envio de comprobante prueba', i, buffer);
+      } catch (error) {
+        console.error('Error creating PDF buffer:', error);
+      }
     }
   }
   generatePDF(datos: any) {
@@ -56,11 +61,15 @@ export class UploadComponent implements OnInit {
     this.CreatePdfBoletaService.generatePDF(datos)
   }
   EnviarDenuevo(datos: any, index:number){
-    this.sendEmail(datos.correo, 'Comprobante de pago', 'Envio de comprobante prueba ',index);
+    this.CreatePdfBoletaService.envioCorreos64(datos).then((buffer) => {
+      this.sendEmail(datos.correo, 'Comprobante de pago', 'Envio de comprobante prueba ',index,buffer);
+    }).catch((error) => {
+      console.error('Error creating PDF buffer:', error);
+    }); 
   }
-  sendEmail(to: string, subject: string, text: string,indix:number) {
+  sendEmail(to: string, subject: string, text: string,indix:number, buffer:any) {
     const callable = this.functions.httpsCallable('sendEmail');
-    callable({ to, subject, text }).subscribe(
+    callable({ to, subject,text, buffer  }).subscribe(
       response => {
         this.data[indix].alerta = true
       },
