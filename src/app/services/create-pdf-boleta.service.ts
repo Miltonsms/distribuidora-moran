@@ -10,21 +10,10 @@ pdfMake.vfs = pdfFonts.pdfMake.vfs;
 export class CreatePdfBoletaService {
 
   constructor() { }
-
-  generatePDF(datos:any) {
-    let fecha = formatDate(new Date(), 'dd/MM/yyyy', 'en-US')
-    const fechaActual = new Date();
-    const opciones: Intl.DateTimeFormatOptions = { month: 'long', year: 'numeric' };
-    const formatoFecha = new Intl.DateTimeFormat('es-ES', opciones).format(fechaActual);
-
-    // Dividir el formato de fecha en mes y año
-    const [mes,de, año] = formatoFecha.split(' ');
-
-    // Obtener el último día del mes
-    const ultimoDia = new Date(fechaActual.getFullYear(), fechaActual.getMonth() + 1, 0).getDate();
-
-    // Texto deseado
-    const texto = `BOLETA PAGO SALARIO DEL 01 AL ${ultimoDia} ${mes.toUpperCase()} ${año.toUpperCase()}`;
+  getvalorDecimal(value: number): string {
+    return "Q " + value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  generatePDF(datos:any,fechaActual:string,fechaTitulo:string) {
     const documentDefinition = {
       content: [
         {
@@ -35,14 +24,14 @@ export class CreatePdfBoletaService {
               alignment: 'left',
             },
             {
-              text: 'DISTRIBUIDORA MORAZÁN S.A.\n'+texto,
+              text: 'DISTRIBUIDORA MORAZÁN S.A.\n'+fechaTitulo,
               style: 'header',
               margin: [0, 0, 0, 0]
             }
           ]
         },
         {
-          text:  '\nFECHA: '+fecha+' \n\n',
+          text:  '\nFECHA: '+fechaActual+' \n\n',
           style: 'subheader'
         },
         {
@@ -77,28 +66,28 @@ export class CreatePdfBoletaService {
                 { text: 'DESCRIPCIÓN', style: 'tableHeader' },
                 { text: 'QUETZALES', style: 'tableHeader' }
               ],
-              ['Salario Devengado', datos.salario_devengado],
-              ['Bonificación Dcto 37-2001', datos.bonificacion_decreto_37_2001],
-              ['Pago Asueto', datos.pago_asueto],
-              ['Otras Bonificaciones', datos.otras_bonificaciones],
-              ['Pago Variable', datos.pago_variable],
-              ['Pagos Pendientes', datos.pago_pendiente],
-              [{ text: 'TOTAL INGRESOS', style: 'totalHeader' }, datos.total_ingreso],
-              ['Descuento IGSS', datos.descuento_igss],
-              ['Impuesto Sobre la Renta', datos.impuesto_sobre_renta],
-              ['Pago Variable 80% aplica', datos.pago_variable_80_aplica],
-              ['Descuento Préstamo Salarial', datos.descuento_prestamo_salarial],
-              ['Descuento de Faltantes en Liquidaciones y Bodegas', datos.descuento_faltantes_liquidaciones_bodega],
-              ['Descuento por Equipo y Flota', datos.descuento_equipo_flota],
-              ['Descuento Autoconsumo', datos.descuento_autoconsumo],
-              ['Anticipo Quincenal', datos.anticipo_quincenal],
-              ['Otros Descuentos', datos.otros_descuentos],
-              ['Descuento de Ausencias Injustificadas', datos.descuento_ausencias_injustificadas],
-              ['Descuento Anticipo Bonificación', datos.descuento_anticipo_bonificacion],
-              ['Embargos Salariales', datos.embargos_salariales],
-              ['Boleto de Ornado', datos.boleto_ornato],
-              [{ text: 'TOTAL DESCUENTOS', style: 'totalHeader' }, datos.total_Descuento],
-              [{ text: 'NETO RECIBIDO', style: 'totalHeader' }, datos.neto_recibido]
+              ['Salario Devengado', this.getvalorDecimal( datos.salario_devengado)],
+              ['Bonificación Dcto 37-2001', this.getvalorDecimal( datos.bonificacion_decreto_37_2001)],
+              ['Pago Asueto', this.getvalorDecimal( datos.pago_asueto)],
+              ['Otras Bonificaciones', this.getvalorDecimal( datos.otras_bonificaciones)],
+              ['Pago Variable', this.getvalorDecimal( datos.pago_variable)],
+              ['Pagos Pendientes', this.getvalorDecimal( datos.pago_pendiente)],
+              [{ text: 'TOTAL INGRESOS', style: 'totalHeader' }, this.getvalorDecimal( datos.total_ingreso)],
+              ['Descuento IGSS', this.getvalorDecimal( datos.descuento_igss)],
+              ['Impuesto Sobre la Renta', this.getvalorDecimal( datos.impuesto_sobre_renta)],
+              ['Pago Variable 80% aplica', this.getvalorDecimal( datos.pago_variable_80_aplica)],
+              ['Descuento Préstamo Salarial', this.getvalorDecimal( datos.descuento_prestamo_salarial)],
+              ['Descuento de Faltantes en Liquidaciones y Bodegas', this.getvalorDecimal( datos.descuento_faltantes_liquidaciones_bodega)],
+              ['Descuento por Equipo y Flota', this.getvalorDecimal( datos.descuento_equipo_flota)],
+              ['Descuento Autoconsumo', this.getvalorDecimal( datos.descuento_autoconsumo)],
+              ['Anticipo Quincenal', this.getvalorDecimal( datos.anticipo_quincenal)],
+              ['Otros Descuentos', this.getvalorDecimal( datos.otros_descuentos)],
+              ['Descuento de Ausencias Injustificadas', this.getvalorDecimal( datos.descuento_ausencias_injustificadas)],
+              ['Descuento Anticipo Bonificación', this.getvalorDecimal( datos.descuento_anticipo_bonificacion)],
+              ['Embargos Salariales', this.getvalorDecimal( datos.embargos_salariales)],
+              ['Boleto de Ornado', this.getvalorDecimal( datos.boleto_ornato)],
+              [{ text: 'TOTAL DESCUENTOS', style: 'totalHeader' }, this.getvalorDecimal( datos.total_Descuento)],
+              [{ text: 'NETO RECIBIDO', style: 'totalHeader' }, this.getvalorDecimal( datos.neto_recibido)]
             ]
           }
         },
@@ -151,20 +140,7 @@ export class CreatePdfBoletaService {
 
     pdfMake.createPdf(documentDefinition).open();
   }
-  envioCorreos64 = async (datos: any) => {
-    let fecha = formatDate(new Date(), 'dd/MM/yyyy', 'en-US')
-    const fechaActual = new Date();
-    const opciones: Intl.DateTimeFormatOptions = { month: 'long', year: 'numeric' };
-    const formatoFecha = new Intl.DateTimeFormat('es-ES', opciones).format(fechaActual);
-
-    // Dividir el formato de fecha en mes y año
-    const [mes,de, año] = formatoFecha.split(' ');
-
-    // Obtener el último día del mes
-    const ultimoDia = new Date(fechaActual.getFullYear(), fechaActual.getMonth() + 1, 0).getDate();
-
-    // Texto deseado
-    const texto = `BOLETA PAGO SALARIO DEL 01 AL ${ultimoDia} ${mes.toUpperCase()} ${año.toUpperCase()}`;
+  envioCorreos64 = async (datos: any,fechaActual:string,fechaTitulo:string) => {
     const documentDefinition = {
       content: [
         {
@@ -175,14 +151,14 @@ export class CreatePdfBoletaService {
               alignment: 'left',
             },
             {
-              text: 'DISTRIBUIDORA MORAZÁN S.A.\n'+texto,
+              text: 'DISTRIBUIDORA MORAZÁN S.A.\n'+fechaTitulo,
               style: 'header',
               margin: [0, 0, 0, 0]
             }
           ]
         },
         {
-          text:  '\nFECHA: '+fecha+' \n\n',
+          text:  '\nFECHA: '+fechaActual+' \n\n',
           style: 'subheader'
         },
         {
@@ -217,28 +193,28 @@ export class CreatePdfBoletaService {
                 { text: 'DESCRIPCIÓN', style: 'tableHeader' },
                 { text: 'QUETZALES', style: 'tableHeader' }
               ],
-              ['Salario Devengado', datos.salario_devengado],
-              ['Bonificación Dcto 37-2001', datos.bonificacion_decreto_37_2001],
-              ['Pago Asueto', datos.pago_asueto],
-              ['Otras Bonificaciones', datos.otras_bonificaciones],
-              ['Pago Variable', datos.pago_variable],
-              ['Pagos Pendientes', datos.pago_pendiente],
-              [{ text: 'TOTAL INGRESOS', style: 'totalHeader' }, datos.total_ingreso],
-              ['Descuento IGSS', datos.descuento_igss],
-              ['Impuesto Sobre la Renta', datos.impuesto_sobre_renta],
-              ['Pago Variable 80% aplica', datos.pago_variable_80_aplica],
-              ['Descuento Préstamo Salarial', datos.descuento_prestamo_salarial],
-              ['Descuento de Faltantes en Liquidaciones y Bodegas', datos.descuento_faltantes_liquidaciones_bodega],
-              ['Descuento por Equipo y Flota', datos.descuento_equipo_flota],
-              ['Descuento Autoconsumo', datos.descuento_autoconsumo],
-              ['Anticipo Quincenal', datos.anticipo_quincenal],
-              ['Otros Descuentos', datos.otros_descuentos],
-              ['Descuento de Ausencias Injustificadas', datos.descuento_ausencias_injustificadas],
-              ['Descuento Anticipo Bonificación', datos.descuento_anticipo_bonificacion],
-              ['Embargos Salariales', datos.embargos_salariales],
-              ['Boleto de Ornado', datos.boleto_ornato],
-              [{ text: 'TOTAL DESCUENTOS', style: 'totalHeader' }, datos.total_Descuento],
-              [{ text: 'NETO RECIBIDO', style: 'totalHeader' }, datos.neto_recibido]
+              ['Salario Devengado', this.getvalorDecimal( datos.salario_devengado)],
+              ['Bonificación Dcto 37-2001', this.getvalorDecimal( datos.bonificacion_decreto_37_2001)],
+              ['Pago Asueto', this.getvalorDecimal( datos.pago_asueto)],
+              ['Otras Bonificaciones', this.getvalorDecimal( datos.otras_bonificaciones)],
+              ['Pago Variable', this.getvalorDecimal( datos.pago_variable)],
+              ['Pagos Pendientes', this.getvalorDecimal( datos.pago_pendiente)],
+              [{ text: 'TOTAL INGRESOS', style: 'totalHeader' }, this.getvalorDecimal( datos.total_ingreso)],
+              ['Descuento IGSS', this.getvalorDecimal( datos.descuento_igss)],
+              ['Impuesto Sobre la Renta', this.getvalorDecimal( datos.impuesto_sobre_renta)],
+              ['Pago Variable 80% aplica', this.getvalorDecimal( datos.pago_variable_80_aplica)],
+              ['Descuento Préstamo Salarial', this.getvalorDecimal( datos.descuento_prestamo_salarial)],
+              ['Descuento de Faltantes en Liquidaciones y Bodegas', this.getvalorDecimal( datos.descuento_faltantes_liquidaciones_bodega)],
+              ['Descuento por Equipo y Flota', this.getvalorDecimal( datos.descuento_equipo_flota)],
+              ['Descuento Autoconsumo', this.getvalorDecimal( datos.descuento_autoconsumo)],
+              ['Anticipo Quincenal', this.getvalorDecimal( datos.anticipo_quincenal)],
+              ['Otros Descuentos', this.getvalorDecimal( datos.otros_descuentos)],
+              ['Descuento de Ausencias Injustificadas', this.getvalorDecimal( datos.descuento_ausencias_injustificadas)],
+              ['Descuento Anticipo Bonificación', this.getvalorDecimal( datos.descuento_anticipo_bonificacion)],
+              ['Embargos Salariales', this.getvalorDecimal( datos.embargos_salariales)],
+              ['Boleto de Ornado', this.getvalorDecimal( datos.boleto_ornato)],
+              [{ text: 'TOTAL DESCUENTOS', style: 'totalHeader' }, this.getvalorDecimal( datos.total_Descuento)],
+              [{ text: 'NETO RECIBIDO', style: 'totalHeader' }, this.getvalorDecimal( datos.neto_recibido)]
             ]
           }
         },
