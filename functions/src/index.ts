@@ -16,12 +16,12 @@ const transporter = nodemailer.createTransport({
   }
 });
 export const sendEmail = functions.https.onCall(async (data, context) => {
-  const { to, subject,text,buffer } = data;
+  const { to, subject, text, buffer } = data;
   const mailOptions = {
     from: 'notificacion@dismogt.com',
     to: to,
     subject: subject,
-    text:text,
+    html: text,
     attachments: [
       {
         filename: 'document.pdf',
@@ -29,6 +29,23 @@ export const sendEmail = functions.https.onCall(async (data, context) => {
         contentType: 'application/pdf'
       }
     ]
+  };
+  try {
+    await transporter.sendMail(mailOptions);
+    return { success: true };
+  } catch (error) {
+    console.error('Error enviando correo:', error);
+    throw new functions.https.HttpsError('internal', 'Error enviando correo');
+  }
+});
+
+export const sendEmailComprobanteEnvios = functions.https.onCall(async (data, context) => {
+  const { to, subject, html } = data;
+  const mailOptions = {
+    from: 'notificacion@dismogt.com',
+    to: to,
+    subject: subject,
+    html: html
   };
   try {
     await transporter.sendMail(mailOptions);
