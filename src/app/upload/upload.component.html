@@ -97,7 +97,15 @@
                     <h2 class="card-title">Email de reporte de envio.</h2>
                     <p class="card-text">Ingrese correo para el reporte de envio de correos.</p>
                     <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"
-                      [(ngModel)]="emailReporte" name="emailCopiaEnvio">
+                      [(ngModel)]="emailReporte" name="emailReporte">
+                  </div>
+                </form>
+                <form>
+                  <div class="mb-12">
+                    <h2 class="card-title">Email Copia de correo</h2>
+                    <p class="card-text">Ingrese Email que se agregara como copia al momento de enviar los comprobantes.</p>
+                    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"
+                      [(ngModel)]="emailCopiaEnvio" name="emailCopiaEnvio">
                   </div>
                 </form>
               </div>

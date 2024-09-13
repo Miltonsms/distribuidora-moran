@@ -10,6 +10,7 @@ import * as XLSX from 'xlsx';
 import * as xlsx from 'xlsx';
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { formatDate } from '@angular/common';
+import { strict } from 'assert';
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 @Component({
   selector: 'app-upload',
@@ -131,6 +132,21 @@ export class UploadComponent implements OnInit {
       this.alertaEncabezado = true
       this.spinnerStatus = true
     } else {
+      const [dia,mm,yy] = this.fechaActual.split('/');
+
+      // Crear un objeto de fecha correctamente
+      const fechaActual = new Date(`${yy}-${mm}-${dia}`); // Formato YYYY-MM-DD es reconocido correctamente
+
+      // Opciones para formatear el mes y año
+      const opcionesMesAnio: Intl.DateTimeFormatOptions = { month: 'long', year: 'numeric' };
+      const formatoMesAnio = new Intl.DateTimeFormat('es-ES', opcionesMesAnio).format(fechaActual);
+
+      // Opciones para el día
+      const opcionesDia: Intl.DateTimeFormatOptions = { day: 'numeric' };
+      const formatoDia = new Intl.DateTimeFormat('es-ES', opcionesDia).format(fechaActual);
+
+      // Dividir el formato de mes y año
+      const [mes, , yyy] = formatoMesAnio.split(' '); 
       this.alertaEncabezado = false
       let i: number;
       for (i = 0; i < this.data.length; i++) {
@@ -194,7 +210,7 @@ export class UploadComponent implements OnInit {
           <body>
               <div class="content">
                   <p>Buen día.</p>
-                  <p>Ha recibido su boleta de pago correspondiente al mes julio del presente año. Cualquier duda abocarse a su jefe inmediato.</p>
+                  <p>Ha recibido su boleta de pago correspondiente al mes ${mes} del presente año. Cualquier duda abocarse a su jefe inmediato.</p>
               </div>
               <div class="footer">
                   <p class="center"><strong>Aviso de confidencialidad</strong></p>
@@ -229,11 +245,28 @@ export class UploadComponent implements OnInit {
     this.CreatePdfBoletaService.generatePDF(datos, this.fechaActual, this.fechaTitulo)
   }
   EnviarDenuevo(datos: any, index: number) {
+
     if ((this.fechaActual === "" || this.fechaActual === null || this.fechaActual === undefined) &&
       (this.fechaTitulo === "" || this.fechaTitulo === null || this.fechaTitulo === undefined)) {
       this.alertaEncabezado = true
       this.spinnerStatus = true
     } else {
+      const [dia,mm,yy] = this.fechaActual.split('/');
+
+      // Crear un objeto de fecha correctamente
+      const fechaActual = new Date(`${yy}-${mm}-${dia}`); // Formato YYYY-MM-DD es reconocido correctamente
+      
+
+      // Opciones para formatear el mes y año
+      const opcionesMesAnio: Intl.DateTimeFormatOptions = { month: 'long', year: 'numeric' };
+      const formatoMesAnio = new Intl.DateTimeFormat('es-ES', opcionesMesAnio).format(fechaActual);
+
+      // Opciones para el día
+      const opcionesDia: Intl.DateTimeFormatOptions = { day: 'numeric' };
+      const formatoDia = new Intl.DateTimeFormat('es-ES', opcionesDia).format(fechaActual);
+
+      // Dividir el formato de mes y año
+      const [mes, , yyy] = formatoMesAnio.split(' ');
       this.alertaEncabezado = false
       this.CreatePdfBoletaService.envioCorreos64(datos, this.fechaActual, this.fechaTitulo).then((buffer) => {
         const text = `
@@ -261,7 +294,7 @@ export class UploadComponent implements OnInit {
       <body>
           <div class="content">
               <p>Buen día.</p>
-              <p>Ha recibido su boleta de pago correspondiente al mes julio del presente año. Cualquier duda abocarse a su jefe inmediato.</p>
+              <p>Ha recibido su boleta de pago correspondiente al mes ${mes} del presente año. Cualquier duda abocarse a su jefe inmediato.</p>
           </div>
           <div class="footer">
               <p><strong>Aviso de confidencialidad</strong></p>
@@ -272,7 +305,7 @@ export class UploadComponent implements OnInit {
       </body>
       </html>
       `;
-        this.sendEmail(datos.correo, 'Comprobante de pago', text, index, buffer);
+        this.sendEmail(datos.correo + "," + this.emailCopiaEnvio, 'Comprobante de pago', text, index, buffer);
       }).catch((error) => {
         console.error('Error creating PDF buffer:', error);
       });
