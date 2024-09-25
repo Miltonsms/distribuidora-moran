@@ -1,5 +1,15 @@
 {
   "projects": {
-    "default": "sistema-distribuidora-moran"
+    "default": "sistema-distribuidora-moran",
+    "sistema-distribuidora-moran": "sistema-distribuidora-moran"
+  },
+  "targets": {
+    "sistema-distribuidora-moran": {
+      "hosting": {
+        "sistema-Distribuidora-Moran": [
+          "sistema-distribuidora-moran"
+        ]
+      }
+    }
   }
 }

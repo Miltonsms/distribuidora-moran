@@ -11,6 +11,9 @@ import * as xlsx from 'xlsx';
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { formatDate } from '@angular/common';
 import { strict } from 'assert';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFireAuth } from '@angular/fire/auth';
+import { HistorialEnvioService } from '../services/historial-envio.service'
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 @Component({
   selector: 'app-upload',
@@ -31,7 +34,14 @@ export class UploadComponent implements OnInit {
   fechaTitulo = ""
   alertaEncabezado = false
   emailReporte = ""
-  constructor(private fileUploadService: FileUploadService, private CreatePdfBoletaService: CreatePdfBoletaService, private storage: AngularFireStorage, private functions: AngularFireFunctions) { }
+  constructor(private fileUploadService: FileUploadService,
+    private CreatePdfBoletaService: CreatePdfBoletaService,
+    private storage: AngularFireStorage,
+    private functions: AngularFireFunctions,
+    private firestore: AngularFirestore,
+    private afAuth: AngularFireAuth,
+    private HistorialEnvioService: HistorialEnvioService,
+  ) { }
 
   ngOnInit(): void {
   }
@@ -132,7 +142,7 @@ export class UploadComponent implements OnInit {
       this.alertaEncabezado = true
       this.spinnerStatus = true
     } else {
-      const [dia,mm,yy] = this.fechaActual.split('/');
+      const [dia, mm, yy] = this.fechaActual.split('/');
 
       // Crear un objeto de fecha correctamente
       const fechaActual = new Date(`${yy}-${mm}-${dia}`); // Formato YYYY-MM-DD es reconocido correctamente
@@ -146,7 +156,7 @@ export class UploadComponent implements OnInit {
       const formatoDia = new Intl.DateTimeFormat('es-ES', opcionesDia).format(fechaActual);
 
       // Dividir el formato de mes y año
-      const [mes, , yyy] = formatoMesAnio.split(' '); 
+      const [mes, , yyy] = formatoMesAnio.split(' ');
       this.alertaEncabezado = false
       let i: number;
       for (i = 0; i < this.data.length; i++) {
@@ -222,18 +232,21 @@ export class UploadComponent implements OnInit {
           </html>
           `;
             const buffer = await this.CreatePdfBoletaService.envioCorreos64(this.data[i], this.fechaActual, this.fechaTitulo);
-            await this.sendEmail(this.data[i].correo + "," + this.emailCopiaEnvio, 'Comprobante de pago', text, i, buffer);
+            await this.sendEmail(this.data[i].correo + "," + this.emailCopiaEnvio, 'Comprobante de pago', text, i, buffer,"EnviarMasivo");
           } else {
             this.comprobanteNoEnviado.push(this.data[i])
-            if (i == this.data.length - 1) {
-              this.spinnerStatus = true
-              console.log('Finished processing all data.');
-            }
+            // if (i == this.data.length - 1) {
+            //   this.spinnerStatus = true
+            //   console.log('Finished processing all data.');
+            // }
           }
         } catch (error) {
           console.error('Error creating PDF buffer:', error);
         }
       }
+      this.enviarListadoEnvioExitosos();
+      this.logUploadDetails();
+      this.spinnerStatus = true;
     }
   }
   esCorreoValido(correo: string): boolean {
@@ -251,11 +264,11 @@ export class UploadComponent implements OnInit {
       this.alertaEncabezado = true
       this.spinnerStatus = true
     } else {
-      const [dia,mm,yy] = this.fechaActual.split('/');
+      const [dia, mm, yy] = this.fechaActual.split('/');
 
       // Crear un objeto de fecha correctamente
       const fechaActual = new Date(`${yy}-${mm}-${dia}`); // Formato YYYY-MM-DD es reconocido correctamente
-      
+
 
       // Opciones para formatear el mes y año
       const opcionesMesAnio: Intl.DateTimeFormatOptions = { month: 'long', year: 'numeric' };
@@ -305,31 +318,37 @@ export class UploadComponent implements OnInit {
       </body>
       </html>
       `;
-        this.sendEmail(datos.correo + "," + this.emailCopiaEnvio, 'Comprobante de pago', text, index, buffer);
+        this.sendEmail(datos.correo + "," + this.emailCopiaEnvio, 'Comprobante de pago', text, index, buffer,"EnviarDenuevo");
       }).catch((error) => {
         console.error('Error creating PDF buffer:', error);
       });
     }
 
   }
-  sendEmail(to: string, subject: string, text: string, indix: number, buffer: any) {
-    const callable = this.functions.httpsCallable('sendEmail');
-    callable({ to, subject, text, buffer }).subscribe(
-      response => {
-        this.data[indix].alerta = true
-        this.comprobanteExitososEnviados.push(this.data[indix])
-        if (indix == this.data.length - 1) {
-          this.enviarListadoEnvioExitosos()
-          this.spinnerStatus = true
-          console.log('Finished processing all data.');
+  sendEmail(to: string, subject: string, text: string, indix: number, buffer: any,tipoEnvio:string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const callable = this.functions.httpsCallable('sendEmail');
+      callable({ to, subject, text, buffer }).subscribe(
+        response => {
+          this.data[indix].alerta = true;
+          this.comprobanteExitososEnviados.push(this.data[indix]);
+          if (tipoEnvio == 'EnviarDenuevo') {
+            this.enviarListadoEnvioExitosos();
+            this.logUploadDetails();
+            this.spinnerStatus = true;
+            console.log('Finished processing all data.');
+          }
+          resolve();  // Resuelve la promesa cuando el correo se envía exitosamente
+        },
+        error => {
+          console.error('Error sending email', error);
+          reject(error);  // Rechaza la promesa si hay un error
         }
-      },
-      error => {
-        console.error('Error sending email', error);
-      }
-    );
+      );
+    });
   }
   sendEmailComprobanteEnvios(to: string, subject: string, html: string,) {
+
     const callable = this.functions.httpsCallable('sendEmailComprobanteEnvios');
     callable({ to, subject, html }).subscribe(
       response => {
@@ -393,7 +412,7 @@ export class UploadComponent implements OnInit {
     xlsx.writeFile(workBook, exportFileName);
   }
   enviarListadoEnvioExitosos() {
-    if (this.emailReporte != "" || this.emailReporte != null || this.emailReporte != undefined) {
+    if (this.emailReporte.trim() != "") {
       const text = this.ComprobantesEnviados();
       this.sendEmailComprobanteEnvios(this.emailReporte, 'Reporte de comprobantes enviados.', text);
     }
@@ -414,7 +433,7 @@ export class UploadComponent implements OnInit {
       <tbody>
   `;
 
-      this.data.forEach((item, index) => {
+      this.comprobanteExitososEnviados.forEach((item, index) => {
         texto += `
           <tr>
               <td>${index + 1}</td>
@@ -432,5 +451,28 @@ export class UploadComponent implements OnInit {
       return texto;
     }
   }
+  // Función para registrar el historial de la carga
+  logUploadDetails() {
+    let fecha = formatDate(new Date(), 'dd/MM/yyyy', 'en-US')
+    const now = new Date();
+    let horaConMinutos = formatDate(now, 'HH:mm', 'en-US');
+    this.afAuth.currentUser.then(user => {
+      if (user) {
+        const uploadRecord = {
+          userId: user.uid,
+          email: user.email,
+          uploadDate: fecha,
+          horaConMinutos: horaConMinutos,
+          comprobanteExitososEnviados: this.comprobanteExitososEnviados
+        };
 
+        this.HistorialEnvioService.logUploadDetails(uploadRecord).then(() => {
+          console.log('Historial de carga registrado con éxito en historialEnvio');
+          this.comprobanteExitososEnviados =[]
+        }).catch(error => {
+          console.error('Error al registrar el historial de carga:', error);
+        });
+      }
+    });
+  }
 }

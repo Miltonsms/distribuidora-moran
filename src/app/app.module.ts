@@ -15,12 +15,14 @@ import { SidebarComponent } from './sidebar/sidebar.component';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
+import { HistorialComponent } from './historial/historial.component';
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     UploadComponent,
-    SidebarComponent
+    SidebarComponent,
+    HistorialComponent
   ],
   imports: [
     BrowserModule,
